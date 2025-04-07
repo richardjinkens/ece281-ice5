@@ -95,21 +95,47 @@ begin
 	-- CONCURRENT STATEMENTS ------------------------------------------------------------------------------
 	
 	-- Next State Logic
-  
+    f_Q_next <= -- up 
+                s_floor2 when (f_Q = s_floor1 AND i_up_down = '1') else        
+                s_floor3 when (f_Q = s_floor2 AND i_up_down = '1') else
+                s_floor4 when (f_Q = s_floor3 AND i_up_down = '1') else
+                s_floor4 when (f_Q = s_floor4 AND i_up_down = '1') else
+    
+                -- down
+                s_floor3 when (f_Q = s_floor4 AND i_up_down = '0') else
+                s_floor2 when (f_Q = s_floor3 AND i_up_down = '0') else
+                s_floor1 when (f_Q = s_floor2 AND i_up_down = '0') else
+                s_floor1 when (f_Q = s_floor1 AND i_up_down = '0') else
+        
+                s_floor2;
+       
 	-- Output logic
 
+        with f_Q select 
+            o_floor <=  "0001" when s_floor1,
+                        "0010" when s_floor2,
+                        "0011" when s_floor3,
+                        "0100" when s_floor4,
+                        "0010" when others;
+            
+            
 	-------------------------------------------------------------------------------------------------------
 	
 	-- PROCESSES ------------------------------------------------------------------------------------------	
-	
+	register_proc : process (i_clk)
+	begin
+	   if rising_edge(i_clk) then
+	       if i_reset = '1' then
+	           f_Q <= s_floor2;
+	       elsif i_stop = '0' then
+	           f_Q <= f_Q_next;
+	       end if;
+	   end if;
+	end process register_proc;
 	-- State register ------------
 	
 	
 	-------------------------------------------------------------------------------------------------------
 	
-	
-
-
-
 end Behavioral;
 
